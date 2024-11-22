@@ -18,6 +18,15 @@
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
+double inicio, fim, pausa_total, pausa;
+
+void scan_com_pausa(char *format, void *var)
+{
+    pausa = omp_get_wtime();
+    scanf(format, var);
+    pausa_total += omp_get_wtime() - pausa;
+}
+
 //TODO: Segurança ao redor do tamanho máximo de uma palavra
 char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
 {
@@ -29,14 +38,16 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
     {
         dicionario[i] = (char *)malloc(tamanho_palavra * sizeof(char));
         printf("Digite a palavra %d: ", i + 1);
-        scanf("%s", dicionario[i]);
+        scan_com_pausa("%s", dicionario[i]);
     }
+    return dicionario;
 }
 
-int main(int *argc, char **argv)
+int main(int argc, char **argv)
 {
     // Definindo variáveis e tratando parâmetros
-    double inicio = omp_get_wtime(), fim;
+    inicio = omp_get_wtime();
+    pausa_total = 0.0;
     FILE *file;
     char *arquivo = argv[1];
     int n_linhas = atoi(argv[2]);
@@ -54,11 +65,11 @@ int main(int *argc, char **argv)
 
     int n_palavras;
     printf("Digite o numero de palavras a serem encontradas: ");
-    scanf("%d", &n_palavras);
+    scan_com_pausa("%d", &n_palavras);
     char **dicionario = cria_dicionario(n_palavras, n_linhas, n_colunas);
 
     char *linha = (char *)malloc(n_colunas * sizeof(char));
-    // Lê cada linha do arquivo e salva em linha. Preferi fazer com um for e numero de colunas para facilitar a paralelização.
+    // Lê cada linha do arquivo e salva em `linha`. Preferi fazer com um for e numero de colunas para facilitar a paralelização.
     // TODO: Paralelizar a leitura de linhas
     for(int i = 0; i < n_linhas; i++)
     {
@@ -68,7 +79,7 @@ int main(int *argc, char **argv)
         }
         else
         {
-            break; // Sai do loop se não conseguir ler mais linhas
+            break; // Caso não consega ler mais linhas (?)
         }
     }
 
@@ -83,6 +94,6 @@ int main(int *argc, char **argv)
 
     fim = omp_get_wtime();
 
-    printf("Tempo de execução: %f\n", fim - inicio);
+    printf("\n\nTempo de execucao: %.5f\n", (fim - inicio) - pausa_total);
     return 0;
 }
