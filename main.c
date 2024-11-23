@@ -105,6 +105,82 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
     return dicionario;
 }
 
+void procura_palavra_na_linha(char **matriz, int n_colunas, int linha_n, char **dicionario, int numero_palavras){
+    int k;
+    for(int i = 0; i < n_colunas; ++i){
+        for(int j = 0; j < numero_palavras; ++j){
+            // printf("Procurando palavra %s\n", dicionario[j]);
+            // printf("Matriz[%d][%d] = %c\n", linha_n, i, matriz[linha_n][i]);
+            if(matriz[linha_n][i] == dicionario[j][0]){
+                // Procura a palavra na horizontal
+                k = 0;
+                while(matriz[linha_n][i + k] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Procura a palavra na horizontal reversa
+                k = 0;
+                while(matriz[linha_n][i - k] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Procura a palavra na vertical
+                k = 0;
+                while(matriz[linha_n + k][i] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Procura a palavra na vertical reversa
+                k = 0;
+                while(matriz[linha_n - k][i] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Diagonal direita baixo
+                k = 0;
+                while(matriz[linha_n + k][i + k] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Diagonal direita cima
+                k = 0;
+                while(matriz[linha_n - k][i + k] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Diagonal esquerda baixo
+                k = 0;
+                while(matriz[linha_n + k][i - k] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+                // Diagonal esquerda cima
+                k = 0;
+                while(matriz[linha_n - k][i - k] == dicionario[j][k]){
+                    k++;
+                    if(k == strlen(dicionario[j])){
+                        printf("\nPalavra %s encontrada na linha %d, coluna %d\n", dicionario[j], linha_n + 1, i + 1);
+                    }
+                }
+            }
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Definindo variáveis e tratando parâmetros
@@ -136,6 +212,7 @@ int main(int argc, char **argv)
     preenche_matriz(file, caca_palavras, n_linhas, n_colunas);
     print_matriz(caca_palavras, n_linhas);
 
+    procura_palavra_na_linha(caca_palavras, n_colunas, 3, dicionario, n_palavras);
     // Free em tudo que foi alocado
     for(int i = 0; i < n_palavras; i++)
     {
