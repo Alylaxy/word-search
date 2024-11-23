@@ -1,7 +1,7 @@
 // Programinha top criado como nosso próprio filho.
 // Pais: Jão e Lance
 // Propósito: Encontra palavras em um caça palavras
-// Forma de Utilização: Chame o programa com os parâmetros "arquivo", "tamanho das colunas", "tamanho das linhas", "numero de threads"
+// Forma de Utilização: Chame o programa com os parâmetros "arquivo", "numero de linhas", "tamanho das linhas", "numero de threads"
 // Arquivo deve ser uma matriz de letras, simulando um caça palavras
 
 #include <stdio.h>
@@ -28,6 +28,25 @@ void scan_com_pausa(char *format, void *var)
     pausa_total += omp_get_wtime() - pausa;
 }
 
+char **cria_matriz(int n_linhas, int n_colunas)
+{
+    char **matriz = (char **)malloc(n_linhas * sizeof(char *));
+    for (int i = 0; i < n_linhas; i++)
+    {
+        matriz[i] = (char *)malloc(n_colunas * sizeof(char));
+    }
+    return matriz;
+}
+
+void print_matriz(char **matriz, int n_linhas)
+{
+    printf("\n\nMatriz:\n");
+    for (int i = 0; i < n_linhas; i++)
+    {
+        printf("%s", matriz[i]);
+    }
+    printf("\n\n");
+}
 char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
 {
     char **dicionario = (char **)malloc(n_palavras * sizeof(char *));
@@ -37,8 +56,8 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
     for (int i = 0; i < n_palavras; i++)
     {
         char palavra_temp[1000];
-        scan_com_pausa("%s", palavra_temp);
         printf("Digite a palavra %d: ", i + 1);
+        scan_com_pausa("%s", palavra_temp);
         if(strlen(palavra_temp) > tamanho_palavra)
         {
             printf("Palavra muito grande, tente novamente\n");
@@ -64,7 +83,7 @@ int main(int argc, char **argv)
     int n_colunas = atoi(argv[3]);
     int n_threads = atoi(argv[4]);
     omp_set_num_threads(n_threads);
-
+    char **caca_palavras = cria_matriz(n_linhas, n_colunas);
     file = fopen(arquivo, "r");
     // Caso o arquivo não exista
     if (file == NULL)
@@ -85,13 +104,16 @@ int main(int argc, char **argv)
     {
         if (fgets(linha, n_colunas + 2, file) != NULL)
         {
-            printf("%s", linha);
+            strcpy(caca_palavras[i], linha);
+            // printf("%s", caca_palavras[i]);
         }
         else
         {
             break; // Caso não consega ler mais linhas (?)
         }
     }
+
+    print_matriz(caca_palavras, n_linhas);
 
     // Free em tudo que foi alocado
     for(int i = 0; i < n_palavras; i++)
