@@ -55,6 +55,22 @@ char **cria_matriz(int n_linhas, int n_colunas)
     return matriz;
 }
 
+void preenche_matriz(FILE *file, char **matriz, int n_linhas, int n_colunas)
+{
+    char *linha = (char *)malloc(n_colunas * sizeof(char));
+    // Lê cada linha do arquivo e salva em `linha`. Preferi fazer com um 'for' e numero de linhas para facilitar a paralelização.
+    // TODO: Paralelizar a leitura de linhas
+    for(int i = 0; i < n_linhas; i++)
+    {
+        if (fgets(linha, n_colunas + 2, file) != NULL)
+        {
+            strcpy(matriz[i], linha);
+        }
+    }
+    rewind(file);
+    free(linha);
+}
+
 void print_matriz(char **matriz, int n_linhas)
 {
     printf("\n\nMatriz:\n");
@@ -62,7 +78,6 @@ void print_matriz(char **matriz, int n_linhas)
     {
         printf("%s", matriz[i]);
     }
-    printf("\n\n");
 }
 
 char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
@@ -118,18 +133,7 @@ int main(int argc, char **argv)
     printf("Digite o numero de palavras a serem encontradas: ");
     scan_com_pausa("%d", &n_palavras);
     char **dicionario = cria_dicionario(n_palavras, n_linhas, n_colunas);
-
-    char *linha = (char *)malloc(n_colunas * sizeof(char));
-    // Lê cada linha do arquivo e salva em `linha`. Preferi fazer com um 'for' e numero de linhas para facilitar a paralelização.
-    // TODO: Paralelizar a leitura de linhas
-    for(int i = 0; i < n_linhas; i++)
-    {
-        if (fgets(linha, n_colunas + 2, file) != NULL)
-        {
-            strcpy(caca_palavras[i], linha);
-        }
-    }
-
+    preenche_matriz(file, caca_palavras, n_linhas, n_colunas);
     print_matriz(caca_palavras, n_linhas);
 
     // Free em tudo que foi alocado
@@ -138,7 +142,6 @@ int main(int argc, char **argv)
         free(dicionario[i]);
     }
     free(dicionario);
-    free(linha);
     fclose(file);
 
     fim = omp_get_wtime() - pausa_total;
