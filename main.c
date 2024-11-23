@@ -60,7 +60,7 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
         scan_com_pausa("%s", palavra_temp);
         if(strlen(palavra_temp) > tamanho_palavra)
         {
-            printf("Palavra muito grande, tente novamente\n");
+            printf("Palavra muito grande, tente novamente.\n Palavra precisa ser menor do que max(numero de linhas, tamanho da linha)\n\n");
             i--;
         }
         else
@@ -124,8 +124,8 @@ int main(int argc, char **argv)
     free(linha);
     fclose(file);
 
-    fim = omp_get_wtime();
+    fim = omp_get_wtime() - pausa_total;
 
-    printf("\n\nTempo de execucao: %.5f\n", (fim - inicio) - pausa_total);
+    printf("\n\nTempo de execucao: %.5f\n", fim - inicio);
     return 0;
 }
