@@ -1,7 +1,7 @@
 // Programinha top criado como nosso próprio filho.
 // Pais: Jão e Lance
 // Propósito: Encontra palavras em um caça palavras
-// Forma de Utilização: Chame o programa com os parâmetros "arquivo", "numero de linhas", "tamanho das linhas", "numero de threads"
+// Forma de Utilização: Chame o programa com os parâmetros "arquivo", "numero de threads"
 // Arquivo deve ser uma matriz de letras, simulando um caça palavras
 
 #include <stdio.h>
@@ -20,6 +20,23 @@
 #endif
 
 double inicio, fim, pausa_total, pausa;
+
+void acha_tamanho_caca_palavras(FILE *file, int *n_linhas, int *n_colunas){
+    char linha[10000];
+    *n_linhas = 0;
+    *n_colunas = 0;
+
+    while (fgets(linha, sizeof(linha), file) != NULL) {
+        (*n_linhas)++;
+        int len = strlen(linha);
+        if (len > *n_colunas) {
+            *n_colunas = len;
+        }
+    }
+    // Desconsidera o \n do final
+    --(*n_colunas);
+    rewind(file);
+}
 
 void scan_com_pausa(char *format, void *var)
 {
@@ -47,6 +64,7 @@ void print_matriz(char **matriz, int n_linhas)
     }
     printf("\n\n");
 }
+
 char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
 {
     char **dicionario = (char **)malloc(n_palavras * sizeof(char *));
@@ -60,7 +78,7 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
         scan_com_pausa("%s", palavra_temp);
         if(strlen(palavra_temp) > tamanho_palavra)
         {
-            printf("Palavra muito grande, tente novamente.\n Palavra precisa ser menor do que max(numero de linhas, tamanho da linha)\n\n");
+            printf("Palavra muito grande, tente novamente.\n Palavra precisa ser menor ou igual a max(numero de linhas, tamanho da linha)\n\n");
             i--;
         }
         else
@@ -79,11 +97,11 @@ int main(int argc, char **argv)
     pausa_total = 0.0;
     FILE *file;
     char *arquivo = argv[1];
-    int n_linhas = atoi(argv[2]);
-    int n_colunas = atoi(argv[3]);
-    int n_threads = atoi(argv[4]);
+    int n_threads = atoi(argv[2]);
+    int n_linhas;
+    int n_colunas;
     omp_set_num_threads(n_threads);
-    char **caca_palavras = cria_matriz(n_linhas, n_colunas);
+
     file = fopen(arquivo, "r");
     // Caso o arquivo não exista
     if (file == NULL)
@@ -92,24 +110,23 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    acha_tamanho_caca_palavras(file, &n_linhas, &n_colunas);
+    printf("Linhas: %d\nColunas: %d\n", n_linhas, n_colunas);
+
+    char **caca_palavras = cria_matriz(n_linhas, n_colunas);
     int n_palavras;
     printf("Digite o numero de palavras a serem encontradas: ");
     scan_com_pausa("%d", &n_palavras);
     char **dicionario = cria_dicionario(n_palavras, n_linhas, n_colunas);
 
     char *linha = (char *)malloc(n_colunas * sizeof(char));
-    // Lê cada linha do arquivo e salva em `linha`. Preferi fazer com um for e numero de colunas para facilitar a paralelização.
+    // Lê cada linha do arquivo e salva em `linha`. Preferi fazer com um 'for' e numero de linhas para facilitar a paralelização.
     // TODO: Paralelizar a leitura de linhas
     for(int i = 0; i < n_linhas; i++)
     {
         if (fgets(linha, n_colunas + 2, file) != NULL)
         {
             strcpy(caca_palavras[i], linha);
-            // printf("%s", caca_palavras[i]);
-        }
-        else
-        {
-            break; // Caso não consega ler mais linhas (?)
         }
     }
 
