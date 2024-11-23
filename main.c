@@ -9,6 +9,7 @@
 #include <string.h>
 #include <omp.h>
 #include <limits.h>
+#include <string.h>
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
@@ -27,7 +28,6 @@ void scan_com_pausa(char *format, void *var)
     pausa_total += omp_get_wtime() - pausa;
 }
 
-//TODO: Segurança ao redor do tamanho máximo de uma palavra
 char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
 {
     char **dicionario = (char **)malloc(n_palavras * sizeof(char *));
@@ -36,9 +36,19 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
     int tamanho_palavra = max(n_linhas, n_colunas);
     for (int i = 0; i < n_palavras; i++)
     {
-        dicionario[i] = (char *)malloc(tamanho_palavra * sizeof(char));
+        char palavra_temp[1000];
+        scan_com_pausa("%s", palavra_temp);
         printf("Digite a palavra %d: ", i + 1);
-        scan_com_pausa("%s", dicionario[i]);
+        if(strlen(palavra_temp) > tamanho_palavra)
+        {
+            printf("Palavra muito grande, tente novamente\n");
+            i--;
+        }
+        else
+        {
+            dicionario[i] = (char *)malloc(tamanho_palavra * sizeof(char));
+            strcpy(dicionario[i], palavra_temp);
+        }
     }
     return dicionario;
 }
