@@ -21,15 +21,18 @@
 
 double inicio, fim, pausa_total, pausa;
 
-void acha_tamanho_caca_palavras(FILE *file, int *n_linhas, int *n_colunas){
+void acha_tamanho_caca_palavras(FILE *file, int *n_linhas, int *n_colunas)
+{
     char linha[10000];
     *n_linhas = 0;
     *n_colunas = 0;
 
-    while (fgets(linha, sizeof(linha), file) != NULL) {
+    while (fgets(linha, sizeof(linha), file) != NULL)
+    {
         (*n_linhas)++;
         int len = strlen(linha);
-        if (len > *n_colunas) {
+        if (len > *n_colunas)
+        {
             *n_colunas = len;
         }
     }
@@ -60,7 +63,7 @@ void preenche_matriz(FILE *file, char **matriz, int n_linhas, int n_colunas)
     char *linha = (char *)malloc(n_colunas * sizeof(char));
     // Lê cada linha do arquivo e salva em `linha`. Preferi fazer com um 'for' e numero de linhas para facilitar a paralelização.
     // TODO: Paralelizar a leitura de linhas
-    for(int i = 0; i < n_linhas; i++)
+    for (int i = 0; i < n_linhas; i++)
     {
         if (fgets(linha, n_colunas + 2, file) != NULL)
         {
@@ -91,7 +94,7 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
         char palavra_temp[1000];
         printf("Digite a palavra %d: ", i + 1);
         scan_com_pausa("%s", palavra_temp);
-        if(strlen(palavra_temp) > tamanho_palavra)
+        if (strlen(palavra_temp) > tamanho_palavra)
         {
             printf("Palavra muito grande, tente novamente.\n Palavra precisa ser menor ou igual a max(numero de linhas, tamanho da linha)\n\n");
             i--;
@@ -105,35 +108,50 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
     return dicionario;
 }
 
-void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int linha_n, char **dicionario, int numero_palavras){
+// Descomente para debugar
+void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int linha_n, char **dicionario, int numero_palavras)
+{
     int matches;
     char scan;
     char **palavras_encontradas = (char **)malloc(numero_palavras * sizeof(char *));
     int count_palavras_encontradas = 0;
     int linha_de_busca;
     int coluna_de_busca;
-    for(int i = 0; i < n_colunas; ++i){
-        for(int j = 0; j < numero_palavras; ++j){
+    for (int i = 0; i < n_colunas; ++i)
+    {
+        for (int j = 0; j < numero_palavras; ++j)
+        {
             // printf("\n=====\n=====\n[i = %d][j = %d]Procurando palavra %s\n", i, j, dicionario[j]);
             // scanf("%c", &scan);
-            if(matriz[linha_n][i] == dicionario[j][0]){
+            if (matriz[linha_n][i] == dicionario[j][0])
+            {
                 // printf("\n\n-------------------------------\n");
                 // printf("Procura a palavra na horizontal\n");
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     coluna_de_busca++;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        // + 1 para \0
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
+                        palavras_encontradas[count_palavras_encontradas] = palavra;
                         count_palavras_encontradas++;
-                        palavras_encontradas[count_palavras_encontradas - 1] = palavra;
                     }
-                    if(coluna_de_busca + 1 > n_colunas){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (coluna_de_busca + 1 > n_colunas)
+                    {
                         coluna_de_busca = 0;
                     }
                 }
@@ -143,18 +161,27 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     coluna_de_busca--;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(coluna_de_busca - 1 < 0){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (coluna_de_busca - 1 < 0)
+                    {
                         coluna_de_busca = n_colunas - 1;
                     }
                 }
@@ -164,18 +191,27 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     linha_de_busca++;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(linha_de_busca + 1 > n_linhas){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (linha_de_busca + 1 > n_linhas)
+                    {
                         linha_de_busca = 0;
                     }
                 }
@@ -185,18 +221,27 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     linha_de_busca--;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(linha_de_busca - 1 < 0){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (linha_de_busca - 1 < 0)
+                    {
                         linha_de_busca = n_linhas - 1;
                     }
                 }
@@ -206,19 +251,28 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     linha_de_busca++;
                     coluna_de_busca++;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(linha_de_busca + 1 > n_linhas || coluna_de_busca + 1 > n_colunas){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (linha_de_busca + 1 > n_linhas || coluna_de_busca + 1 > n_colunas)
+                    {
                         break;
                     }
                 }
@@ -228,19 +282,28 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     linha_de_busca--;
                     coluna_de_busca++;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(linha_de_busca - 1 < 0 || coluna_de_busca + 1 > n_colunas){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (linha_de_busca - 1 < 0 || coluna_de_busca + 1 > n_colunas)
+                    {
                         break;
                     }
                 }
@@ -250,19 +313,28 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     linha_de_busca++;
                     coluna_de_busca--;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(linha_de_busca + 1 > n_linhas || coluna_de_busca - 1 < 0){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (linha_de_busca + 1 > n_linhas || coluna_de_busca - 1 < 0)
+                    {
                         break;
                     }
                 }
@@ -272,29 +344,44 @@ void procura_palavra_na_linha(char **matriz, int n_colunas, int n_linhas, int li
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
-                while(matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches]){
+                while (matriz[linha_de_busca][coluna_de_busca] == dicionario[j][matches])
+                {
                     // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca]);
                     // printf("matches = %d\n", matches);
                     matches++;
                     linha_de_busca--;
                     coluna_de_busca--;
-                    if(matches == strlen(dicionario[j])){
-                        char *palavra = (char *)malloc(strlen(dicionario[j]) * sizeof(char));
+                    if (matches == strlen(dicionario[j]))
+                    {
+                        char *palavra = (char *)malloc(strlen(dicionario[j] + 1) * sizeof(char));
+                        if (palavra == NULL)
+                        {
+                            perror("Erro ao alocar memória");
+                            exit(1);
+                        }
                         strcpy(palavra, dicionario[j]);
-                        count_palavras_encontradas++;
                         palavras_encontradas[count_palavras_encontradas] = palavra;
+                        count_palavras_encontradas++;
                     }
-                    if(linha_de_busca - 1 < 0 || coluna_de_busca - 1 < 0){
+                    // Checa se a próxima iteração transbordaria a matriz, antes de alterar os índices
+                    if (linha_de_busca - 1 < 0 || coluna_de_busca - 1 < 0)
+                    {
                         break;
                     }
                 }
             }
         }
     }
-    for(int i = 0; i < count_palavras_encontradas; i++)
+    for (int i = 0; i < count_palavras_encontradas; i++)
     {
         printf("Palavras encontradas na linha %d: %s\n", linha_n, palavras_encontradas[i]);
     }
+
+    for (int i = 0; i < count_palavras_encontradas; i++)
+    {
+        free(palavras_encontradas[i]);
+    }
+    free(palavras_encontradas);
 }
 
 int main(int argc, char **argv)
@@ -328,12 +415,12 @@ int main(int argc, char **argv)
     preenche_matriz(file, caca_palavras, n_linhas, n_colunas);
     print_matriz(caca_palavras, n_linhas);
 
-    for(int i = 0; i < n_linhas; i++)
+    for (int i = 0; i < n_linhas; i++)
     {
         procura_palavra_na_linha(caca_palavras, n_colunas, n_linhas, i, dicionario, n_palavras);
     }
     // Free em tudo que foi alocado
-    for(int i = 0; i < n_palavras; i++)
+    for (int i = 0; i < n_palavras; i++)
     {
         free(dicionario[i]);
     }
