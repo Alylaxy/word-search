@@ -399,16 +399,16 @@ void procura_palavra_na_linha(elemento **matriz, int n_colunas, int n_linhas, in
                     }
                 }
                 if(achou) continue;
-                printf("\n\n-------------------------------\n");
-                printf("Procura a palavra na diagonal direita baixo\n");
+                // printf("\n\n-------------------------------\n");
+                // printf("Procura a palavra na diagonal direita baixo\n");
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
                 while (matriz[linha_de_busca][coluna_de_busca].letra == dicionario[j][matches])
                 {
                     matches++;
-                    printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
-                    printf("matches = %d\n", matches);
+                    // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
+                    // printf("matches = %d\n", matches);
                     if (matches == strlen(dicionario[j]))
                     {
                         achou = 1;
@@ -427,16 +427,16 @@ void procura_palavra_na_linha(elemento **matriz, int n_colunas, int n_linhas, in
                     }
                 }
                 if(achou) continue;
-                printf("\n\n-------------------------------\n");
-                printf("Procura a palavra na diagonal direita cima\n");
+                // printf("\n\n-------------------------------\n");
+                // printf("Procura a palavra na diagonal direita cima\n");
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
                 while (matriz[linha_de_busca][coluna_de_busca].letra == dicionario[j][matches])
                 {
                     matches++;
-                    printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
-                    printf("matches = %d\n", matches);
+                    // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
+                    // printf("matches = %d\n", matches);
                     if (matches == strlen(dicionario[j]))
                     {
                         achou = 1;
@@ -455,16 +455,16 @@ void procura_palavra_na_linha(elemento **matriz, int n_colunas, int n_linhas, in
                     }
                 }
                 if(achou) continue;
-                printf("\n\n-------------------------------\n");
-                printf("Procura a palavra na diagonal esquerda baixo\n");
+                // printf("\n\n-------------------------------\n");
+                // printf("Procura a palavra na diagonal esquerda baixo\n");
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
                 while (matriz[linha_de_busca][coluna_de_busca].letra == dicionario[j][matches])
                 {
                     matches++;
-                    printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
-                    printf("matches = %d\n", matches);
+                    // printf("Matriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
+                    // printf("matches = %d\n", matches);
                     if (matches == strlen(dicionario[j]))
                     {
                         achou = 1;
@@ -483,16 +483,16 @@ void procura_palavra_na_linha(elemento **matriz, int n_colunas, int n_linhas, in
                     }
                 }
                 if(achou) continue;
-                printf("\n\n-------------------------------\n");
-                printf("Procura a palavra na diagonal esquerda cima\n");
+                // printf("\n\n-------------------------------\n");
+                // printf("Procura a palavra na diagonal esquerda cima\n");
                 matches = 0;
                 linha_de_busca = linha_n;
                 coluna_de_busca = i;
                 while (matriz[linha_de_busca][coluna_de_busca].letra == dicionario[j][matches])
                 {
                     matches++;
-                    printf("\n---\nMatriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
-                    printf("matches = %d\n", matches);
+                    // printf("\n---\nMatriz[%d][%d] = %c\n", linha_de_busca, coluna_de_busca, matriz[linha_de_busca][coluna_de_busca].letra);
+                    // printf("matches = %d\n", matches);
                     if (matches == strlen(dicionario[j]))
                     {
                         achou = 1;
@@ -546,7 +546,7 @@ int main(int argc, char **argv)
     }
 
     acha_tamanho_caca_palavras(file, &n_linhas, &n_colunas);
-    printf("Linhas: %d\nColunas: %d\n", n_linhas, n_colunas);
+    // printf("Linhas: %d\nColunas: %d\n", n_linhas, n_colunas);
 
     elemento **caca_palavras = cria_matriz(n_linhas, n_colunas);
     int n_palavras;
@@ -556,6 +556,7 @@ int main(int argc, char **argv)
     preenche_matriz(file, caca_palavras, n_linhas, n_colunas);
     print_matriz(caca_palavras, n_linhas, n_colunas);
 
+    #pragma omp parallel for
     for (int i = 0; i < n_linhas; i++)
     {
         procura_palavra_na_linha(caca_palavras, n_colunas, n_linhas, i, dicionario, n_palavras);
