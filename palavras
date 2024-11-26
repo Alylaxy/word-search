@@ -1,11 +1,18 @@
-algoritmos arvore quicksort mergesort bubblesort prova openmp colapso tomanucu feladaputa odeio trabalho manual arrombado cuzao fudidinho fon trab huebr paralela programacao
+algoritmos arvore quicksort mergesort bubblesort prova openmp colapso tomanucu feladaputa odeio trabalho manual arrombado cuzao fudidinho fon trab huebr paralela programacao pneumoultramicroscopicossilicovulcanoconioti cartada
 
-0.00199986 4 threads
-0.00300002
-0.01200008
-0.01099992
-0.00699997
+4 threads:
+0.0010001659393311
+0.0009999275207520
+0.0009999275207520
+0.0009999275207520
+0.0009999275207520
 
-0.01200008 1 thread
-0.00399995
-0.00600004
+
+
+
+1 thread:
+0.0020000934600830
+0.0019998550415039
+0.0019998550415039
+0.0029997825622559
+0.0039999485015869

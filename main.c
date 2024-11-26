@@ -572,7 +572,7 @@ int main(int argc, char **argv)
     free(caca_palavras);
 
 
-    printf("\n\nTempo de execucao com %d threads: %.8f\n", n_threads, fim - inicio);
-    printf("inicio: %.8f\nfim: %.8f\n", inicio, fim);
+    printf("\n\nTempo de execucao com %d threads: %.16f\n", n_threads, fim - inicio);
+    printf("inicio: %.16f\nfim: %.16f\n", inicio, fim);
     return 0;
 }
