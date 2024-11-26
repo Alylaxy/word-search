@@ -43,8 +43,7 @@ Suspeita: Diagonais de borda estão bugadas
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
-double inicio, fim, pausa_total, pausa;
-
+double inicio, fim;
 typedef struct
 {
     char letra;
@@ -69,13 +68,6 @@ void acha_tamanho_caca_palavras(FILE *file, int *n_linhas, int *n_colunas)
     // Desconsidera o \n do final
     --(*n_colunas);
     rewind(file);
-}
-
-void scan_com_pausa(char *format, void *var)
-{
-    pausa = omp_get_wtime();
-    scanf(format, var);
-    pausa_total += omp_get_wtime() - pausa;
 }
 
 elemento **cria_matriz(int n_linhas, int n_colunas)
@@ -166,7 +158,7 @@ char **cria_dicionario(int n_palavras, int n_linhas, int n_colunas)
     {
         char palavra_temp[1000];
         printf("Digite a palavra %d: ", i + 1);
-        scan_com_pausa("%s", palavra_temp);
+        scanf("%s", palavra_temp);
         if (strlen(palavra_temp) > tamanho_palavra)
         {
             printf("Palavra muito grande, tente novamente.\n Palavra precisa ser menor ou igual a max(numero de linhas, tamanho da linha)\n\n");
@@ -528,8 +520,6 @@ void procura_palavra_na_linha(elemento **matriz, int n_colunas, int n_linhas, in
 int main(int argc, char **argv)
 {
     // Definindo variáveis e tratando parâmetros
-    inicio = omp_get_wtime();
-    pausa_total = 0.0;
     FILE *file;
     char *arquivo = argv[1];
     int n_threads = atoi(argv[2]);
@@ -551,11 +541,12 @@ int main(int argc, char **argv)
     elemento **caca_palavras = cria_matriz(n_linhas, n_colunas);
     int n_palavras;
     printf("Digite o numero de palavras a serem encontradas: ");
-    scan_com_pausa("%d", &n_palavras);
+    scanf("%d", &n_palavras);
     char **dicionario = cria_dicionario(n_palavras, n_linhas, n_colunas);
     preenche_matriz(file, caca_palavras, n_linhas, n_colunas);
     print_matriz(caca_palavras, n_linhas, n_colunas);
 
+    inicio = omp_get_wtime();
     #pragma omp parallel for
     for (int i = 0; i < n_linhas; i++)
     {
@@ -563,6 +554,8 @@ int main(int argc, char **argv)
     }
 
     print_matriz(caca_palavras, n_linhas, n_colunas);
+    fim = omp_get_wtime();
+
     // Free em tudo que foi alocado
     for (int i = 0; i < n_palavras; i++)
     {
@@ -575,8 +568,7 @@ int main(int argc, char **argv)
     }
     free(caca_palavras);
 
-    fim = omp_get_wtime() - pausa_total;
 
-    printf("\n\nTempo de execucao: %.5f\n", fim - inicio);
+    printf("\n\nTempo de execucao com %d threads: %.5f\n", n_threads, fim - inicio);
     return 0;
 }
